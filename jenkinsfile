@@ -1,0 +1,15 @@
+node {
+  def remote = [:]
+  remote.name = 'pdv'
+  remote.host = '10.0.0.3'
+  remote.user = 'admin'
+  remote.allowAnyHosts = true
+node {
+    withCredentials([sshUserPrivateKey(credentialsId: 'pvd811', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'userName')]) {
+        remote.user = userName
+        remote.identityFile = identity
+        stage("Checking PVD application") {
+         sshCommand remote: remote, command: 'udsinfo lsapplication'
+        }
+    }
+}
