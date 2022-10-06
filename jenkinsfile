@@ -5,16 +5,15 @@ node {
   remote.user = 'admin'
   remote.allowAnyHosts = true
 
-     withCredentials([sshUserPrivateKey(credentialsId: 'pvd811', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'userName')])
-     {
-        remote.user = userName
-        remote.identityFile = identity
-        stage("Provision virtual DB") {
-         sshCommand remote: remote, command: 'udstask runworkflow 145754 -wait'
+        withCredentials([sshUserPrivateKey(credentialsId: 'pvd811', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'userName')]){
+            remote.user = userName
+            remote.identityFile = identity
+            stage("Provision virtual DB") {
+            sshCommand remote: remote, command: 'udstask runworkflow 145754 -wait'
+            }
         }
-     }
 
-        stage("git") {
+        stage("git"){
             git credentialsId: '312b720d-a7c0-41b5-ae1a-edbbfa5c7dcf', url: 'https://github.com/maxvcbhan/crud-using-nodejs-and-db2.git'
 
         }
@@ -32,14 +31,15 @@ node {
                 powershell 'newman run PVD.postman_collection.json'
                 powershell 'pm2 stop server.js'
         }
-         withCredentials([sshUserPrivateKey(credentialsId: 'pvd811', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'userName')]) {
+
+        withCredentials([sshUserPrivateKey(credentialsId: 'pvd811', keyFileVariable: 'identity', passphraseVariable: '', usernameVariable: 'userName')]) {
                 remote.user = userName
                 remote.identityFile = identity
                 stage("Release virtual DB") {
                 sshCommand remote: remote, command: 'udstask unmountimage -image Image$(udsinfo lsjobhistory | grep 145754  | tail -1 | grep -o "_[0-9][0-9][0-9][0-9][0-9][0-9][0-9]" | tail -1) -delete'
                 }
 
-            }
+        }
 
   }
 
