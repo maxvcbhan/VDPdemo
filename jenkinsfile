@@ -25,6 +25,7 @@ node {
             powershell 'npm install --force'
         }
         stage("test") {
+            powershell 'pm2 stop  server.js'
             powershell 'pm2 start server.js'
             powershell 'newman run PVD.postman_collection.json'
             powershell 'pm2 stop server.js'
